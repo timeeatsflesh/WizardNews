@@ -1,14 +1,15 @@
 const express = require("express");
 const app = express();
-const morgan = require("morgan")
-const{list, find} = require("./postBank.js")
-const posts = list()
-app.use(express.static('public'))
+const morgan = require("morgan");
+const { list, find } = require("./postBank.js");
+const posts = list();
+app.use(express.static("public"));
 
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
-app.get("/", (req, res) => res.send(
-  `<html>
+app.get("/", (req, res) =>
+  res.send(
+    `<html>
   <head>
     <title>Wizard News</title>
     <link rel="stylesheet" href="/style.css" />
@@ -16,7 +17,9 @@ app.get("/", (req, res) => res.send(
   <body>
     <div class="news-list">
       <header><img src="/logo.png"/>Wizard News</header>
-      ${posts.map(post => `
+      ${posts
+        .map(
+          (post) => `
         <div class='news-item'>
           <p>
             <span class="news-position">${post.id}. ▲</span>
@@ -27,24 +30,51 @@ app.get("/", (req, res) => res.send(
             ${post.upvotes} upvotes | ${post.date}
           </small>
         </div>`
-      ).join('')}
+        )
+        .join("")}
     </div>
   </body>
   </html>`
-  ));
+  )
+);
 
-  app.get('/posts/:id', (req, res) => {
-    const id = req.params.id;
-    const post = find(id);
-    res.send(`<html>
-    <head><link rel="stylesheet" href="/style.css" /></head>
+app.get("/posts/:id", (req, res) => {
+  const id = req.params.id;
+  const post = find(id);
+
+  if (!post.id) {
+    res.send(`
+    <html>
+    <head>
+      <title>Wizard News</title>
+      <link rel="stylesheet" href="/style.css" />
+    </head>
     <body>
-    <div class="news-list"><header><img src="/logo.png"/>Wizard News</header></div>
+      <header><img src="/logo.png"/>Wizard News</header>
+      <div class="not-found">
+        <p>404: Page Not Found</p>
+      </div>
     </body>
-    
-    </html>`);
-  });
-
+    </html> 
+    `);
+  } else {
+    res.send(`<html>
+      <head><link rel="stylesheet" href="/style.css" /></head>
+      <body>
+      <div class="news-list">
+        <header>
+          <img src="/logo.png"/>Wizard News
+        </header>
+      
+      
+      <h3>${post.title}</h3>
+      <p>${post.content}</p>
+      </div>
+      </body>
+      
+      </html>`);
+  }
+});
 
 const PORT = 1337;
 
